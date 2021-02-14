@@ -4,6 +4,8 @@ Forked from javl.github.io/image2cpp/
 
 工具網址 https://masonchen1003.github.io/image2cpp/index.html
 
+![image](esp32cam_oled.jpg)
+
 原先 tool 不支援 LSB first 功能，造成使用 SSD1306 顯示時會有問題
 
 - 勾選 Invert image colors，讓顯示為黑底白字
