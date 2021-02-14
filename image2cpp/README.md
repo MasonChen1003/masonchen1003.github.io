@@ -24,4 +24,4 @@ Forked from javl.github.io/image2cpp/
 
 
 # 使用附件中的 ino file時，需將 image.h 內容換成 image2cpp 轉出來的 code
-![image](image.jpg)
+![image](image_file.jpg)
