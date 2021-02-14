@@ -214,13 +214,12 @@
 					<div class="table-row">
 						<div class="table-cell"><label>Canvas size(s): </label></div>
 						<div class="table-cell">
-							<ul id="image-size-settings"><li data-img="espuppy.bmp"><span class="file-info">espuppy.bmp  (file resolution: 128 x 64)<br></span><input type="number" name="width" id="screenWidth" min="0" class="size-input"> x <input type="number" name="height" id="screenHeight" min="0" class="size-input"><span class="file-info">glyph</span><input type="text" name="glyph" class="glyph-input"><button class="remove-button">remove</button></li></ul>
-							<div id="only-images-file-error" class="msg error-msg" style="display: none;">Only images file type are allowed</div>
-							<div id="no-file-selected" class="msg" style="display: none;">No files selected</div>
+							<ul id="image-size-settings"></ul>
+							<div id="only-images-file-error" class="msg error-msg">Only images file type are allowed</div>
+							<div id="no-file-selected" class="msg">No files selected</div>
 							<button id="all-same-size">all same size</button>
 						</div>
-					</div>
-					<div class="table-row">
+					</div>					<div class="table-row">
 						<div class="table-cell"><label>Background color:</label></div>
 						<div class="table-cell">
 							<input id="backgroundColorWhite" type="radio" name="backgroundColor" value="white" checked="checked" onchange="updateRadio(&#39;backgroundColor&#39;)">
