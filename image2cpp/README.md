@@ -22,3 +22,6 @@ Forked from javl.github.io/image2cpp/
 # 圖案可先用小畫家準備 128x64 的 bmp file 
 ![image](test_image.jpg)
 
+
+# 使用附件中的 ino file時，需將 image.h 內容換成 image2cpp 轉出來的 code
+![image](image.jpg)
