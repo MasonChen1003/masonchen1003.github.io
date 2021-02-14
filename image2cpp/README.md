@@ -1,5 +1,7 @@
 # Image2cpp (Add LSB first function by Mason)
 
+Forked from https://javl.github.io/image2cpp/ 
+
 工具網址 https://masonchen1003.github.io/image2cpp/index.html
 
 原先 tool 不支援 LSB first 功能，造成使用 SSD1306 顯示時會有問題
