@@ -7,7 +7,7 @@ Forked from javl.github.io/image2cpp/
 ![image](esp32cam_oled.jpg)
 
 # ESP32CAM 接上 SSD1306
-# SSD1306           ESP32CAM
+# SSD1306    ---       ESP32CAM
 
 # GND      -------    GND   
 
