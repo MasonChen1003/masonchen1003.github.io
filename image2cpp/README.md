@@ -9,4 +9,4 @@ Draw mode:
 產生的 code 就可以讓 ESP32CAM 來使用
 
 
-![image](readme_2.jpg)
+![image](test_image.jpg)
