@@ -1,6 +1,6 @@
 # Image2cpp (Add LSB first function by Mason)
 
-masonchen1003.github.io/blob/main/image2cpp/index.html
+https://masonchen1003.github.io/blob/main/image2cpp/index.html
 
 原先 tool 不支援 LSB first 功能，造成使用 SSD1306 顯示時會有問題
 
