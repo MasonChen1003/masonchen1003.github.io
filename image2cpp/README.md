@@ -1,6 +1,6 @@
 # Image2cpp (Add LSB first function by Mason)
 
-Forked from https://javl.github.io/image2cpp/ 
+Forked from javl.github.io/image2cpp/ 
 
 工具網址 https://masonchen1003.github.io/image2cpp/index.html
 
