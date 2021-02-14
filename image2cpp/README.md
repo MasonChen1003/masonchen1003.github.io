@@ -9,4 +9,8 @@
 - 產生的 code 就可以讓 ESP32CAM 來使用
 
 
+- 可先用小畫家準備 128x64 的 bmp file 
+![image](test_image.jpg)
+
+- 使用介面
 ![image](test_image.jpg)
