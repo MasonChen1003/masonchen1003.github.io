@@ -6,6 +6,14 @@ Forked from javl.github.io/image2cpp/
 
 ![image](esp32cam_oled.jpg)
 
+# ESP32CAM 接上 SSD1306
+SSD1306           ESP32CAM
+GND      -------    GND    
+VCC      -------    VCC
+SCL      -------    U0R (GPIO3)
+SDA      -------    U0T (GPIO1)
+
+
 原先 tool 不支援 LSB first 功能，造成使用 SSD1306 顯示時會有問題
 
 - 勾選 Invert image colors，讓顯示為黑底白字
