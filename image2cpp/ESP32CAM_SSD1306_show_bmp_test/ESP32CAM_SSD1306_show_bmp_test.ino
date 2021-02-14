@@ -7,7 +7,7 @@
 #define image_width 128
 #define image_height 64
 
-// SDA 1-TX , SCL 3-TX
+// SDA 1-TX , SCL 3-RX
 SSD1306 display(0x3c, 1, 3);   // ADDRESS, SDA, SCL 
 
 void setup() {
