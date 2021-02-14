@@ -18,7 +18,7 @@ Forked from javl.github.io/image2cpp/
 # SDA      -------    U0T (GPIO1)
 
 # SSD1306 library 
-esp8266-oled-ssd1306-master
+![image](ssd1306_library.jpg)
 
 
 原先 tool 不支援 LSB first 功能，造成使用 SSD1306 顯示時會有問題
