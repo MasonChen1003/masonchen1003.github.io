@@ -8,9 +8,13 @@ Forked from javl.github.io/image2cpp/
 
 # ESP32CAM 接上 SSD1306
 SSD1306           ESP32CAM
-GND      -------    GND    
+
+GND      -------    GND   
+
 VCC      -------    VCC
+
 SCL      -------    U0R (GPIO3)
+
 SDA      -------    U0T (GPIO1)
 
 
