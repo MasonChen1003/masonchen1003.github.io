@@ -237,11 +237,11 @@
     document.querySelector('#log').textContent = '';
     log('Requesting any Bluetooth Device...');
     navigator.bluetooth.requestDevice({
-       filters: [{
-		   namePrefix: 'ESPuppy'
-        }]
-   //     acceptAllDevices: true,
-   //     optionalServices: [_serv_uuid]
+  //     filters: [{
+  //		   namePrefix: 'ESPuppy'
+  //      }]
+        acceptAllDevices: true,
+        optionalServices: [_serv_uuid]
         })
     .then(device => {
       log('Connecting to GATT Server...');
