@@ -343,6 +343,54 @@
       let sendclrMsg = encoder1.encode(clr_data);
       myCharacteristic.writeValue(sendclrMsg)
       .then(_ => {
+    $( "#P2" ).slider({
+      orientation: "horizontal",
+      range: "min",
+      max: 20,
+      min: -20,
+      value: 0,
+      slide: _slide,
+      change: _slide,
+      slide: function(e, ui) {
+          $("#P2_value").html(ui.value);
+          }
+    });    
+    $( "#P3" ).slider({
+      orientation: "horizontal",
+      range: "min",
+      max: 20,
+      min: -20,
+      value: 0,
+      slide: _slide,
+      change: _slide,
+      slide: function(e, ui) {
+          $("#P2_value").html(ui.value);
+          }
+    });    
+    $( "#P4" ).slider({
+      orientation: "horizontal",
+      range: "min",
+      max: 20,
+      min: -20,
+      value: 0,
+      slide: _slide,
+      change: _slide,
+      slide: function(e, ui) {
+          $("#P2_value").html(ui.value);
+          }
+    });    
+    $( "#P5" ).slider({
+      orientation: "horizontal",
+      range: "min",
+      max: 20,
+      min: -20,
+      value: 0,
+      slide: _slide,
+      change: _slide,
+      slide: function(e, ui) {
+          $("#P2_value").html(ui.value);
+          }
+    });    	      
         log('Send data ' + JSON.stringify(clr_data));
 	  setTimeout(function (){
       _update();    
