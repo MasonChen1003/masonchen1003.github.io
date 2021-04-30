@@ -1,0 +1,270 @@
+<body onload='_load()'>
+<div>
+    <h2 align='left' style='color:blue' >Teachable Machine 無線藍牙對接 Micro:bit </h2>
+</div>
+   <h4>1. 藍牙(BLE)連接<br></h4>
+   <button id='connect' type="button" style='background:yellow' class="btn btn-block">Connect</button>
+<div>
+   <h2 align='left' style='color:blue'></h2>
+</div>
+<div class="input-group">
+    <label for="model_input">2 - 填入 Model 路徑</label>
+    <input type="text" id="model" value="">  
+</div>        
+<div class="input-group">
+	<label for="model_input2">範例 https://teachablemachine.withgoogle.com/models/I3CKvOgJ4/<br><br></label>
+</div>        
+<div class="input-group">
+    <label for="threshold_input">3 - 定義最低辨識率％</label>
+    <input type="text" id="spec_low" value="">  
+</div>        
+<div>
+   <h2 align='left' style='color:blue'></h2>
+</div>
+ 
+<script src="./js/app.js"></script>
+	  	  
+<button type="button" style='background:yellow' onclick="init()">4 - 啟動 Webcam</button>
+<div align='center' id="webcam-container" style='border:1px solid grey; height:43%;width:40%'></div>
+<div id="label-container" style='border:1px solid grey;background-color:lightyellow; width:50%;margin-top:3%;font-size:20px;'></div>
+    <div class="col-sm-6">
+      <br>
+      <div id='hint'></div>
+      <h4>Log:</h4>
+      <pre id='log'></pre>
+    </div>
+
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+<script type="text/javascript">
+    // Send TM's result to microbit by Mason 2020/12/29
+    // Web Serial reference :https://github.com/UnJavaScripter/web-serial-example
+    // Add web BLE function by Mason 2021/04/26
+  /////////////////////////////////////////////////////////////////////////
+
+  var _serv_uuid = '6E400001-B5A3-F393-E0A9-E50E24DCCA9E'.toLowerCase();
+  var _char_uuid = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'.toLowerCase();
+
+  var bluetoothDevice = null;
+  var connected = false;
+  var myCharacteristic;
+  var value = {};
+
+  function log(v)
+  {
+    var line = Array.prototype.slice.call(arguments).map(function(argument) {
+      return typeof argument === 'string' ? argument : JSON.stringify(argument);
+    }).join(' ');
+
+    document.querySelector('#log').textContent += line + '\n';
+    console.log(line);
+  }
+
+  function _connect() {
+    document.querySelector('#log').textContent = '';
+    log('Requesting any Bluetooth Device...');
+    navigator.bluetooth.requestDevice({
+       filters: [{
+  		   namePrefix: 'BBC'
+        }],
+    //    acceptAllDevices: true,
+        optionalServices: [_serv_uuid]
+        })
+    .then(device => {
+      log('Connecting to GATT Server...');
+      bluetoothDevice = device;
+      bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+      return device.gatt.connect();
+    })
+    .then(server => {
+      log('Getting Service...');
+      return server.getPrimaryService(_serv_uuid);
+    })
+    .then(service => {
+      log('Getting Characteristic...');
+      return service.getCharacteristic(_char_uuid);
+    })
+    .then(characteristic => {
+  //    log('Reading Characteristic values...');
+      myCharacteristic = characteristic;
+      return 1;
+    })
+    .then(value => {
+      connected = true;
+      _update();
+    })
+    .catch(error => {
+      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+        bluetoothDevice.gatt.disconnect();
+      }
+      bluetoothDevice = null;
+      connected = false;
+//	  state_data =0;
+      log("Error:", error); 
+      _update();
+    });
+  }
+
+  function onDisconnected(event) {
+      log("Disconnected by remote device!"); 
+      bluetoothDevice = null;
+      connected = false;
+      _update();    
+  }
+
+  function _disconnect() {
+    log("_disconnect");
+    if (!connected) {
+      return;
+    }
+    log('Disconnecting from Bluetooth Device...');
+    if (bluetoothDevice.gatt.connected) {
+      bluetoothDevice.gatt.disconnect();
+    } else {
+      log('> Bluetooth Device is already disconnected');
+    }
+    _update();
+  }
+
+  function _update()
+  {
+    if(!navigator.bluetooth) {
+      document.querySelector('#hint').innerText = "Hint: Web Bluetooth API is not available on current browser";
+      document.querySelector('#connect').classList.add("disabled");
+
+      return;
+    }
+
+    if(connected)
+    {
+      document.querySelector('#connect').onclick = _disconnect;
+      document.querySelector('#connect').innerText = "Disconnect";
+      document.querySelector('#connect').classList.remove("btn-primary");
+      
+      document.querySelector('#hint').innerText = "Hint: 照步驟，先輸入 TM 的模型 link ";
+    }
+    else
+    {
+      document.querySelector('#connect').onclick = _connect;
+      document.querySelector('#connect').innerText = "Connect";
+      document.querySelector('#connect').classList.add("btn-primary");
+      document.querySelector('#hint').innerText = "Hint: 先用藍牙連線至已燒錄好藍芽程式的 micro:bit";
+    }
+  }
+
+  function _load() {
+    _update();
+  }
+
+    // the link to your model provided by Teachable Machine export panel
+    var model_path = document.getElementById("model");
+    var spec_low = document.getElementById("spec_low");
+	var spec = 80;
+	
+    let model, webcam, labelContainer, maxPredictions;
+
+    // Load the image model and setup the webcam
+    async function init() {
+   
+        if (model_path.value =="") {
+		    alert("請輸入 model 路徑");
+            return;
+        }
+        if (spec_low.value =="") {
+		    alert("請輸入最低辨識率％");
+            return;
+        }
+        const URL = model_path.value;spec_low.value
+     
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+
+        // load the model and metadata
+        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // or files from your local hard drive
+        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Convenience function to setup a webcam
+        const flip = true; // whether to flip the webcam
+        webcam = new tmImage.Webcam(250, 250, flip); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append elements to the DOM
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) { // and class labels
+            labelContainer.appendChild(document.createElement("div"));
+        }
+    }
+
+    async function loop() {
+        webcam.update(); // update the webcam frame
+        await predict();
+        window.requestAnimationFrame(loop);
+    }
+
+      var send_data = "";
+	  let encoder1 = new TextEncoder('utf-8');
+      let sendMsg = encoder1.encode(send_data);
+    // predict the image from webcam 
+    async function predict() {
+        const prediction = await model.predict(webcam.canvas);
+ 		spec = spec_low.value /100; 
+		
+        for (let i = 0; i < maxPredictions; i++) {
+            const classPrediction = prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+            labelContainer.childNodes[i].innerHTML = classPrediction;
+            
+            if(prediction[i].className=="Class 1" && prediction[i].probability>spec){
+                console.log(prediction[i].className + ": " + prediction[i].probability.toFixed(2));
+                send_data = "1#";
+	            encoder1 = new TextEncoder('utf-8');
+                sendMsg = encoder1.encode(send_data);
+                myCharacteristic.writeValue(sendMsg)
+            }
+            if(prediction[i].className=="Class 2" && prediction[i].probability>spec){
+                console.log(prediction[i].className + ": " + prediction[i].probability.toFixed(4));
+                send_data = "2#";
+	            encoder1 = new TextEncoder('utf-8');
+                sendMsg = encoder1.encode(send_data);
+                myCharacteristic.writeValue(sendMsg)
+            }
+            if(prediction[i].className=="Class 3" && prediction[i].probability>spec){
+                console.log(prediction[i].className + ": " + prediction[i].probability.toFixed(4));
+                send_data = "3#";
+	            encoder1 = new TextEncoder('utf-8');
+                sendMsg = encoder1.encode(send_data);
+                myCharacteristic.writeValue(sendMsg)
+            }
+            if(prediction[i].className=="Class 4" && prediction[i].probability>spec){
+                console.log(prediction[i].className + ": " + prediction[i].probability.toFixed(4));
+                send_data = "4#";
+	            encoder1 = new TextEncoder('utf-8');
+                sendMsg = encoder1.encode(send_data);
+                myCharacteristic.writeValue(sendMsg)
+            }
+            if(prediction[i].className=="Class 5" && prediction[i].probability>spec){
+                console.log(prediction[i].className + ": " + prediction[i].probability.toFixed(4));
+                send_data = "5#";
+	            encoder1 = new TextEncoder('utf-8');
+                sendMsg = encoder1.encode(send_data);
+                myCharacteristic.writeValue(sendMsg)
+            }
+            if(prediction[i].className=="Class 6" && prediction[i].probability>spec){
+                send_data = "6#";
+	            encoder1 = new TextEncoder('utf-8');
+                sendMsg = encoder1.encode(send_data);
+                myCharacteristic.writeValue(sendMsg)
+                console.log(prediction[i].className + ": " + prediction[i].probability.toFixed(4));
+            }            
+         }
+    }
+
+</script>
