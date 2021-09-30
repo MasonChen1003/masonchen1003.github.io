@@ -78,14 +78,14 @@
 			    var onError = function(xhr) {};
 			    var mtlLoader = new THREE.MTLLoader();
 			    mtlLoader.setPath('obj/');
-			    mtlLoader.load('test.mtl', function(materials) {
+			    mtlLoader.load('test2.mtl', function(materials) {
 			
 			        materials.preload();
 			
 			        var objLoader = new THREE.OBJLoader();
 			        objLoader.setMaterials(materials);
 			        objLoader.setPath('obj/');
-			        objLoader.load('test.obj', function(object) {
+			        objLoader.load('test2.obj', function(object) {
 			
 			            object.position.y = 0;
 			            object.rotation.y = 0.5;
