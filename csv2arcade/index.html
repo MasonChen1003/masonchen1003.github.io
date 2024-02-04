@@ -4,24 +4,64 @@
     <meta charset="UTF-8">
     <title>CSV to Arcade Converter</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f7f7f7;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        #csvInput {
+            margin: 20px 0;
+        }
+
+        button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
         #output {
-            width: 90%;
-            height: 500px;
-            margin-top: 10px;
-            white-space: pre-wrap; /* 保留空白和換行 */
-            background-color: #f0f0f0;
+            width: 80%;
+            height: 300px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            background-color: #fff;
             border: 1px solid #ccc;
             padding: 10px;
             overflow-y: auto;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
     <h2>CSV to Arcade Converter by Mason 2024/2/4</h2>
-    <input type="file" id="csvInput" accept=".csv">
-    <button onclick="convertCSV()">Convert to Arcade</button>
-    <button onclick="selectAllText()">全選</button>
-    <div id="output" contenteditable="true"></div> <!-- 可編輯的區域方便全選 -->
+    <input type="file" id="csvInput" accept=".csv" onchange="convertCSV()">
+    <button onclick="selectAllText()" style="background-color: #008CBA;">全選</button>
+    <div id="output" contenteditable="true"></div>
 
     <script>
         function convertCSV() {
