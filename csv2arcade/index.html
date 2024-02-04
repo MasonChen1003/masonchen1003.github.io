@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSV to Arcade Converter</title>
+    <style>
+        #output {
+            width: 90%;
+            height: 500px;
+            margin-top: 10px;
+            white-space: pre-wrap; /* 保留空白和換行 */
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h2>CSV to Arcade Converter by Mason 2024/2/4</h2>
+    <input type="file" id="csvInput" accept=".csv">
+    <button onclick="convertCSV()">Convert to Arcade</button>
+    <button onclick="selectAllText()">全選</button>
+    <div id="output" contenteditable="true"></div> <!-- 可編輯的區域方便全選 -->
+
+    <script>
+        function convertCSV() {
+            const input = document.getElementById('csvInput');
+            const file = input.files[0];
+            const output = document.getElementById('output');
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const csvContent = e.target.result;
+                    const arcadeContent = convertCSVtoArcade(csvContent);
+                    const TiKuContent = generateTiKuFunction(csvContent);
+                    output.textContent = arcadeContent+TiKuContent;
+                };
+
+                reader.readAsText(file);
+            } else {
+                alert('Please select a CSV file.');
+            }
+        }
+
+        function convertCSVtoArcade(csvContent) {
+            const rows = csvContent.trim().split('\n');
+            let arcadeScript = '';
+
+            rows.forEach((row, index) => {
+                const columns = row.split(',');
+                const question = columns[0].trim();
+                const options = columns.slice(1, 6).map(option => option.trim());
+                const correctAnswerIndex = columns[4].trim(); // Assuming the correct answer index is stored in the last column
+                const functionName = `q${index + 1}`;
+
+                arcadeScript += generateArcadeFunction(functionName, question, options, correctAnswerIndex);
+                arcadeScript += '\n\n'; // Add two new lines between functions for clarity
+            });
+
+            return arcadeScript;
+        }
+
+
+        function generateTiKuFunction(csvContent) {
+            const rows = csvContent.trim().split('\n');
+           let tiKuFunc = 'function 題庫(num: number) {\n';
+
+            rows.forEach((row, index) => {
+                tiKuFunc += `    if (num == ${index + 1}) {q${index + 1}();}\n`;
+            });
+            tiKuFunc += '}';
+            return tiKuFunc;
+         }      
+  //      music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.UntilDone);
+ 
+ function generateArcadeFunction(functionName, question, options, correctAnswerIndex) {
+            return `function ${functionName}() {
+    game.splash("${question}");
+    story.showPlayerChoices("${options[0]}", "${options[1]}", "${options[2]}", "${options[3]}");
+    if (story.checkLastAnswer("${options[4]}")) {
+        info.changeScoreBy(1);
+        mySprite.startEffect(effects.spray);
+        story.printText("答對了", 80, 120);
+    } else {
+        info.changeScoreBy(0);
+        story.printText("答錯", 80, 120);
+    }
+}`;
+        }
+
+        function selectAllText() {
+            const output = document.getElementById('output');
+            if (document.body.createTextRange) { // for IE
+                const range = document.body.createTextRange();
+                range.moveToElementText(output);
+                range.select();
+            } else if (window.getSelection) {
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(output);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+    </script>
+</body>
+</html>
