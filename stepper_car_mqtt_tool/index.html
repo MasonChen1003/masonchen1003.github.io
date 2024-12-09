@@ -14,9 +14,15 @@
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
         }
+		#commandImage {
+          max-width: 500px;
+          height: auto;
+          border-radius: 10px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
         #container {
             text-align: center;
-            width: 400px;
+            width: 600px;
             padding: 20px;
             background: #fff;
             border-radius: 10px;
@@ -83,6 +89,7 @@
             <label for="topic">發送的 Topic:</label>
             <input type="text" id="topic" placeholder="test/topic">
         </div>
+		<img id="commandImage" src="command_guide.png" alt="指令表" />
         <div class="field">
             <label for="message">指令區 (one command per line):</label>
             <textarea id="message" rows="5" placeholder="Enter commands, one per line"></textarea>
