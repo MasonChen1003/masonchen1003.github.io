@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MQTT 控制步進小車介面</title>
+    <script src="https://cdn.jsdelivr.net/npm/paho-mqtt@1.0.3/mqttws31-min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+        #container {
+            text-align: center;
+            width: 400px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        .field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .field input,
+        .field textarea,
+        button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        button.success {
+            background-color: #28a745;
+        }
+        button.failure {
+            background-color: #dc3545;
+        }
+        #log {
+            text-align: left;
+            background: #f0f0f0;
+            overflow-y: auto;
+            max-height: 150px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>MQTT 控制步進小車介面</h1>
+
+        <div class="field">
+            <label for="server">預設 MQTT Server:</label>
+            <button id="connectBtn">連線</button>
+        </div>
+        <div class="field">
+            <label for="checkid">識別 ID</label>
+            <input type="text" id="checkid" placeholder="mason">
+        </div>
+        <div class="field">
+            <label for="topic">發送的 Topic:</label>
+            <input type="text" id="topic" placeholder="test/topic">
+        </div>
+        <div class="field">
+            <label for="message">指令區 (one command per line):</label>
+            <textarea id="message" rows="5" placeholder="Enter commands, one per line"></textarea>
+        </div>
+        <button id="sendBtn" disabled>發送</button>
+        <pre id="log" style="border: 1px solid #ccc; padding: 10px; margin-top: 10px;"></pre>
+    </div>
+
+    <script>
+        let client;
+
+        function logMessage(msg) {
+            const log = document.getElementById('log');
+            log.textContent += msg + '\n';
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateButtonStatus(status) {
+            const connectBtn = document.getElementById('connectBtn');
+            if (status === 'success') {
+                connectBtn.classList.add('success');
+                connectBtn.classList.remove('failure');
+            } else if (status === 'failure') {
+                connectBtn.classList.add('failure');
+                connectBtn.classList.remove('success');
+            }
+        }
+
+        document.getElementById('connectBtn').addEventListener('click', function () {
+            const server = "wss://broker.mqttgo.io:8084/mqtt";
+
+            client = new Paho.MQTT.Client(server, "web_client_" + Math.random().toString(16).slice(2));
+
+            client.onConnectionLost = function (responseObject) {
+                logMessage("Connection lost: " + responseObject.errorMessage);
+                document.getElementById('sendBtn').disabled = true;
+                updateButtonStatus('failure');
+            };
+
+            client.onMessageArrived = function (message) {
+                logMessage("Message arrived: " + message.payloadString);
+            };
+
+            client.connect({
+                onSuccess: function () {
+                    logMessage("Connected to MQTT server 成功!");
+                    document.getElementById('sendBtn').disabled = false;
+                    updateButtonStatus('success');
+                },
+                onFailure: function (error) {
+                    logMessage("Connection failed: " + error.errorMessage);
+                    updateButtonStatus('failure');
+                },
+                useSSL: server.startsWith("wss://")
+            });
+        });
+
+        document.getElementById('sendBtn').addEventListener('click', function () {
+            const topic = document.getElementById('topic').value.trim();
+            const checkid = document.getElementById('checkid').value.trim();
+            const messages = document.getElementById('message').value.trim().split('\n');
+
+            if (!topic || messages.length === 0) {
+                alert("Please enter a topic and at least one message!");
+                return;
+            }
+
+            messages.forEach((message, index) => {
+                setTimeout(() => {
+                    const formattedMessage = `${checkid},${message.trim()}`;
+                    const mqttMessage = new Paho.MQTT.Message(formattedMessage);
+                    mqttMessage.destinationName = topic;
+                    client.send(mqttMessage);
+                    logMessage(`Message sent: ${formattedMessage} to topic: ${topic}`);
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
